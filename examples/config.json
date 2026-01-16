@@ -1,0 +1,30 @@
+{
+  "attack": {
+    "target": "http://test.com/login",
+    "port": 80,
+    "module": "http",
+    "method": "POST",
+    "post_data": "username={USER}&password={PASS}",
+    "user_agent": "random",
+    "cookie": "session=abc123",
+    "referer": "http://test.com/",
+    "success_pattern": "Welcome",
+    "failure_pattern": "Invalid credentials",
+    "threads": 10,
+    "delay": 100,
+    "jitter": 50,
+    "timeout": 30,
+    "max_retries": 3,
+    "rate_limit": 60,
+    "proxy": "socks5://127.0.0.1:9050",
+    "randomize": true,
+    "rotate_ua": true,
+    "output_file": "results.json",
+    "output_format": "json",
+    "verbose": 2
+  },
+  "wordlists": {
+    "users": "data/wordlists/common_users.txt",
+    "passwords": "data/wordlists/common_passwords.txt"
+  }
+}

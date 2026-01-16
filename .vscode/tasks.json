@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build CyberForce",
+            "type": "shell",
+            "command": "C:\\msys64\\usr\\bin\\make.exe",
+            "args": ["all"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Clean Build",
+            "type": "shell",
+            "command": "C:\\msys64\\usr\\bin\\make.exe",
+            "args": ["clean"],
+            "group": "build"
+        },
+        {
+            "label": "Run CyberForce",
+            "type": "shell",
+            "command": "./cyberforce.exe",
+            "args": ["--help"],
+            "dependsOn": ["Build CyberForce"],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+    ]
+}

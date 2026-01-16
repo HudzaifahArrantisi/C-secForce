@@ -1,0 +1,32 @@
+{
+    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\cmd.exe",
+    "terminal.integrated.automationShell.windows": "C:\\Windows\\System32\\cmd.exe",
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\msys64\\mingw64\\bin;${env:PATH}"
+    },
+    "C_Cpp.default.compilerPath": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+    "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/include",
+        "C:/msys64/mingw64/include",
+        "C:/msys64/mingw64/x86_64-w64-mingw32/include"
+    ],
+    "files.associations": {
+        "*.h": "c",
+        "cyberforce.h": "c"
+    },
+    "code-runner.executorMap": {
+        "c": "cd $dir && gcc *.c -o $fileNameWithoutExt -lcurl -lssl -lcrypto -lssh -lpthread && $dir$fileNameWithoutExt"
+    },
+    "code-runner.runInTerminal": true,
+    "code-runner.saveFileBeforeRun": true,
+    "makefile.configurations": [
+        {
+            "name": "Windows Build",
+            "makePath": "C:/msys64/usr/bin/make.exe",
+            "makeDirectory": "${workspaceFolder}",
+            "buildTarget": "all",
+            "cleanTarget": "clean"
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+# Success patterns
+Login successful
+Welcome
+Access granted
+Authentication successful
+Logged in as
+
+# Failure patterns
+Invalid username or password
+Login failed
+Access denied
+Authentication failed
+Wrong password
