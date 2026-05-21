@@ -1,6 +1,32 @@
-*.exe
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
+*.a
+*.so
+*.dll
+*.exe
 *.out
-/build
-/dist
-.vscode/settings.json
+*.app
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# Build directories
+/build/
+/dist/
+/bin/
+/obj/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary files
+*.tmp
+*.bak

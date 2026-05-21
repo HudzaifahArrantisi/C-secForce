@@ -7,16 +7,113 @@
 #ifdef _WIN32
     #include <windows.h>
     #include <io.h>
+    #include <sys/stat.h>
     #define sleep(x) Sleep((x) * 1000)
     #define access _access
     #define F_OK 0
-    // getopt implementation for Windows
+    #define strcasecmp _stricmp
+    #define strncasecmp _strnicmp
+
+    #define no_argument 0
+    #define required_argument 1
+    #define optional_argument 2
+
+    struct option {
+        const char *name;
+        int has_arg;
+        int *flag;
+        int val;
+    };
+
     char *optarg = NULL;
     int optind = 1;
     int opterr = 1;
     int optopt = 0;
+
     int getopt(int argc, char *const argv[], const char *optstring) {
-        return -1; // Stub for now
+        char *arg;
+        const char *opt;
+
+        if (optind >= argc) return -1;
+        arg = argv[optind];
+        if (!arg || arg[0] != '-' || arg[1] == '\0' || arg[1] == '-') return -1;
+
+        optopt = arg[1];
+        opt = strchr(optstring, optopt);
+        if (!opt) {
+            optind++;
+            return '?';
+        }
+
+        if (opt[1] == ':') {
+            if (arg[2] != '\0') {
+                optarg = &arg[2];
+            } else if (optind + 1 < argc) {
+                optarg = argv[++optind];
+            } else {
+                optind++;
+                return '?';
+            }
+        } else {
+            optarg = NULL;
+        }
+
+        optind++;
+        return optopt;
+    }
+
+    int getopt_long(int argc, char *const argv[], const char *optstring,
+                    const struct option *longopts, int *longindex) {
+        char *arg;
+        char *value;
+        size_t name_len;
+
+        if (optind >= argc) return -1;
+        arg = argv[optind];
+
+        if (!arg || strncmp(arg, "--", 2) != 0) {
+            return getopt(argc, argv, optstring);
+        }
+
+        if (strcmp(arg, "--") == 0) {
+            optind++;
+            return -1;
+        }
+
+        value = strchr(arg + 2, '=');
+        name_len = value ? (size_t)(value - (arg + 2)) : strlen(arg + 2);
+
+        for (int i = 0; longopts && longopts[i].name; i++) {
+            if (strlen(longopts[i].name) == name_len &&
+                strncmp(arg + 2, longopts[i].name, name_len) == 0) {
+                if (longindex) *longindex = i;
+
+                if (longopts[i].has_arg == required_argument) {
+                    if (value) {
+                        optarg = value + 1;
+                    } else if (optind + 1 < argc) {
+                        optarg = argv[++optind];
+                    } else {
+                        if (opterr) fprintf(stderr, "Option requires an argument: --%s\n", longopts[i].name);
+                        optind++;
+                        return '?';
+                    }
+                } else {
+                    optarg = value ? value + 1 : NULL;
+                }
+
+                optind++;
+                if (longopts[i].flag) {
+                    *longopts[i].flag = longopts[i].val;
+                    return 0;
+                }
+                return longopts[i].val;
+            }
+        }
+
+        if (opterr) fprintf(stderr, "Unknown option: %s\n", arg);
+        optind++;
+        return '?';
     }
 #else
     #include <getopt.h>
@@ -36,14 +133,17 @@ volatile sig_atomic_t g_running = 1;
 char *g_program_name = "cyberforce";
 
 void print_banner() {
-    printf("\n");
-    printf(COLOR_CYAN "╔══════════════════════════════════════════════════════════╗\n" COLOR_RESET);
-    printf(COLOR_CYAN "║" COLOR_RESET "                 " COLOR_YELLOW "CYBERFORCE" COLOR_RESET " v%s                " COLOR_CYAN "║\n" COLOR_RESET, CYBERFORCE_VERSION_STRING);
-    printf(COLOR_CYAN "║" COLOR_RESET "         Advanced Security Testing Framework         " COLOR_CYAN "║\n" COLOR_RESET);
-    printf(COLOR_CYAN "║" COLOR_RESET "           [Academic Project - Semester 3]           " COLOR_CYAN "║\n" COLOR_RESET);
-    printf(COLOR_CYAN "║" COLOR_RESET "          Cybersecurity Specialization              " COLOR_CYAN "║\n" COLOR_RESET);
-    printf(COLOR_CYAN "╚══════════════════════════════════════════════════════════╝\n" COLOR_RESET);
-    printf("\n");
+    static int printed = 0;
+    if (printed) return;
+    printed = 1;
+    printf("\n\n");
+    printf("    " COLOR_RED " ██████╗      " COLOR_CYAN "███████╗███████╗ ██████╗███████╗ ██████╗ ██████╗  ██████╗███████╗\n" COLOR_RESET);
+    printf("    " COLOR_RED "██╔════╝      " COLOR_CYAN "██╔════╝██╔════╝██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝\n" COLOR_RESET);
+    printf("    " COLOR_RED "██║     █████╗" COLOR_CYAN "███████╗█████╗  ██║     █████╗  ██║   ██║██████╔╝██║     █████╗  \n" COLOR_RESET);
+    printf("    " COLOR_RED "██║     ╚════╝" COLOR_CYAN "╚════██║██╔══╝  ██║     ██╔══╝  ██║   ██║██╔══██╗██║     ██╔══╝  \n" COLOR_RESET);
+    printf("    " COLOR_RED "╚██████╗      " COLOR_CYAN "███████║███████╗╚██████╗██║     ╚██████╔╝██║  ██║╚██████╗███████╗\n" COLOR_RESET);
+    printf("    " COLOR_RED " ╚═════╝      " COLOR_CYAN "╚══════╝╚══════╝ ╚═════╝╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝\n" COLOR_RESET);
+    printf("\n\n");
 }
 
 void print_usage() {
@@ -132,7 +232,9 @@ void signal_handler(int sig) {
 
 void cleanup() {
     cleanup_config(&g_config);
+#ifdef HAS_CURL
     curl_global_cleanup();
+#endif
 }
 
 int check_file_exists(const char *filename) {
@@ -260,10 +362,12 @@ int parse_arguments(int argc, char *argv[], Config *config) {
                 break;
                 
             case 'h':
+                print_banner();
                 print_usage();
                 exit(0);
                 
             case 256: // --version
+                print_banner();
                 print_version();
                 exit(0);
                 
@@ -427,12 +531,22 @@ int parse_arguments(int argc, char *argv[], Config *config) {
 }
 
 int main(int argc, char *argv[]) {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+#endif
     g_program_name = argv[0];
     
     // Register signal handlers
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
+#ifndef _WIN32
     signal(SIGQUIT, signal_handler);
+#endif
     
     // Register cleanup function
     atexit(cleanup);
@@ -443,15 +557,18 @@ int main(int argc, char *argv[]) {
     g_config.start_time = time(NULL);
     
     // Initialize CURL
+#ifdef HAS_CURL
     curl_global_init(CURL_GLOBAL_ALL);
+#endif
     
     // Parse command line arguments
     if (parse_arguments(argc, argv, &g_config) != 0) {
-        fprintf(stderr, "Failed to parse arguments. Use -h for help.\n");
+        print_banner();
+        print_usage();
         return 1;
     }
     
-    // Show banner if not in silent mode
+    // Show banner if not in silent mode and not already printed
     if (g_config.verbose > 0) {
         print_banner();
     }

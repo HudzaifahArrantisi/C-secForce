@@ -3,13 +3,13 @@ CC = gcc
 
 # Detect OS
 ifeq ($(OS),Windows_NT)
-    CFLAGS = -Wall -Wextra -O2 -D_WIN32 -DCURL_STATICLIB
+    CFLAGS = -Wall -Wextra -O2 -D_WIN32 -DHAS_CURL -DCURL_STATICLIB
     LIBS = -lcurl -lssh -lssl -lcrypto -lws2_32 -lm -lpthread
     TARGET = cyberforce.exe
     RM = del /Q
     MKDIR = if not exist
 else
-    CFLAGS = -Wall -Wextra -O2 -pthread -D_GNU_SOURCE
+    CFLAGS = -Wall -Wextra -O2 -pthread -D_GNU_SOURCE -DHAS_CURL
     LIBS = -lcurl -lssh -lssl -lcrypto -lm -lpthread
     TARGET = cyberforce
     RM = rm -f
@@ -66,7 +66,7 @@ $(TARGET): $(OBJS)
 # Compile source files
 %.o: %.c
 	@echo "$(BLUE)[*] Compiling $<...$(NC)"
-	@$(CC) $(CFLAGS) -I$(SRC_DIR)/$(INCLUDE_DIR) -c $< -o $@
+	@$(CC) $(CFLAGS) -I$(SRC_DIR) -I$(SRC_DIR)/$(INCLUDE_DIR) -c $< -o $@
 
 # Clean build files
 clean:

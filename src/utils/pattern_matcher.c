@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <regex.h>
+#include <ctype.h>
+#ifndef _WIN32
+    #include <regex.h>
+#endif
 #include "include/cyberforce.h"
 #include "include/defines.h"
 
@@ -12,6 +15,10 @@ bool pattern_match(const char *text, const char *pattern, bool use_regex) {
         // Simple substring search
         return strstr(text, pattern) != NULL;
     } else {
+#ifdef _WIN32
+        // MinGW does not ship POSIX regex.h by default.
+        return strstr(text, pattern) != NULL;
+#else
         // Regular expression matching
         regex_t regex;
         int ret;
@@ -26,6 +33,7 @@ bool pattern_match(const char *text, const char *pattern, bool use_regex) {
         regfree(&regex);
         
         return ret == 0;
+#endif
     }
 }
 

@@ -2,8 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
-#include <regex.h>
 #include <time.h>
+
+#ifdef _WIN32
+    #define strcasecmp _stricmp
+#endif
+
 #include "include/cyberforce.h"
 #include "include/defines.h"
 #include "include/protocols.h"

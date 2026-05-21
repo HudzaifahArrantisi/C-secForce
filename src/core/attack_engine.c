@@ -2,10 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <unistd.h>
 #include <curl/curl.h>
 #include <time.h>
 #include <math.h>
+
+#ifdef _WIN32
+    #include <windows.h>
+    #include <sys/time.h>
+    #define sleep(x) Sleep((x) * 1000)
+    #define usleep(x) Sleep((x) / 1000)
+    #define strcasecmp _stricmp
+#else
+    #include <unistd.h>
+#endif
+
 #include "include/cyberforce.h"
 #include "include/defines.h"
 
@@ -161,10 +171,9 @@ int task_queue_size(TaskQueue *queue) {
 }
 
 // Worker thread function
-void *worker_thread(void *arg) {
+void worker_thread(void *arg) {
     WorkerContext *ctx = (WorkerContext *)arg;
     CURL *curl = NULL;
-    int retry_attempts = 0;
     
     // Initialize CURL for HTTP module
     if (ctx->config->module_type == MODULE_HTTP) {
@@ -172,7 +181,7 @@ void *worker_thread(void *arg) {
         if (!curl) {
             fprintf(stderr, "[!] Thread %d: Failed to initialize CURL\n", ctx->thread_id);
             free(ctx);
-            return NULL;
+            return;
         }
         
         // Set common CURL options
@@ -302,7 +311,7 @@ void *worker_thread(void *arg) {
     }
     
     free(ctx);
-    return NULL;
+    return;
 }
 
 // Load wordlists and create tasks
@@ -399,7 +408,7 @@ void save_checkpoint(Config *config, int processed, int successes) {
     
     fprintf(fp, "processed=%d\n", processed);
     fprintf(fp, "successes=%d\n", successes);
-    fprintf(fp, "timestamp=%ld\n", time(NULL));
+    fprintf(fp, "timestamp=%lld\n", (long long)time(NULL));
     fprintf(fp, "target=%s\n", config->target);
     
     fclose(fp);

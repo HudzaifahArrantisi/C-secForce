@@ -2,27 +2,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <pthread.h>
 
 #ifdef _WIN32
-    #include <windows.h>
     #include <errno.h>
-    #define CLOCK_MONOTONIC 0
-    #define CLOCK_REALTIME 1
-    
-    int clock_gettime(int clk_id, struct timespec *spec) {
-        __int64 wintime;
-        GetSystemTimeAsFileTime((FILETIME*)&wintime);
-        wintime -= 116444736000000000LL;  // 1jan1601 to 1jan1970
-        spec->tv_sec = wintime / 10000000LL;
-        spec->tv_nsec = wintime % 10000000LL * 100;
-        return 0;
-    }
-    
-    int nanosleep(const struct timespec *req, struct timespec *rem) {
-        DWORD ms = (DWORD)(req->tv_sec * 1000 + req->tv_nsec / 1000000);
-        Sleep(ms);
-        return 0;
-    }
 #else
     #include <unistd.h>
 #endif
