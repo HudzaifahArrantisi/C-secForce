@@ -44,10 +44,59 @@ CyberForce adalah tools security testing yang dirancang untuk melakukan pengujia
    - **User-Agent Rotation**: Random user-agent untuk web requests
    - **Pattern Matching**: Custom pattern untuk response analysis
 
-### 3. **Logging & Reporting**
-   - Real-time logging dengan level (INFO, WARNING, ERROR)
-   - Export hasil ke file JSON/CSV
-   - Detailed statistics (success rate, timing, attempts)
+---
+
+## 🚀 Tutorial Step-by-Step (Quick Start)
+
+Ikuti langkah-langkah berikut untuk menjalankan CyberForce di sistem Anda:
+
+### Langkah 1: Persiapan Lingkungan (Environment Setup)
+
+**Untuk Windows (Menggunakan MSYS2):**
+1. Download dan Install [MSYS2](https://www.msys2.org/).
+2. Buka terminal **MSYS2 UCRT64**.
+3. Jalankan perintah berikut untuk menginstall compiler dan library:
+   ```bash
+   pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make mingw-w64-ucrt-x86_64-curl mingw-w64-ucrt-x86_64-libssh mingw-w64-ucrt-x86_64-openssl
+   ```
+
+**Untuk Linux (Debian/Ubuntu):**
+```bash
+sudo apt-get update
+sudo apt-get install build-essential libcurl4-openssl-dev libssh-dev libssl-dev
+```
+
+### Langkah 2: Kompilasi Proyek (Building)
+
+Pilih salah satu metode kompilasi berikut:
+
+*   **Metode Cepat (Windows - Tanpa Library Eksternal):**
+    ```powershell
+    .\quick_compile.bat
+    ```
+*   **Metode Lengkap (Menggunakan Make):**
+    ```bash
+    # Di MSYS2 atau Linux terminal
+    mingw32-make all   # Untuk Windows
+    make all           # Untuk Linux
+    ```
+
+### Langkah 3: Menyiapkan Wordlist
+
+Pastikan Anda memiliki file username dan password di folder `data/wordlists/`. Anda bisa menggunakan file bawaan:
+- `data/wordlists/common_users.txt`
+- `data/wordlists/common_passwords.txt`
+
+### Langkah 4: Menjalankan Serangan (Running)
+
+Gunakan perintah berikut untuk memulai pengujian (contoh HTTP):
+```bash
+.\cyberforce.exe -t http://example.com/login -u data/wordlists/common_users.txt -p data/wordlists/common_passwords.txt -T 10
+```
+
+### Langkah 5: Melihat Hasil
+
+CyberForce akan menampilkan hasil secara real-time di terminal. Jika serangan berhasil, detail credential akan muncul dengan tanda `[SUCCESS]`.
 
 ---
 
