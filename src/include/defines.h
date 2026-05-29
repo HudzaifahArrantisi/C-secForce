@@ -59,7 +59,7 @@
 #define MINUTE_IN_US 60000000
 #define HOUR_IN_US 3600000000
 
-// Color codes for output
+// Color codes for output   
 #define COLOR_RESET   "\033[0m"
 #define COLOR_RED     "\033[31m"
 #define COLOR_GREEN   "\033[32m"
